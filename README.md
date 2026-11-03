@@ -6,6 +6,8 @@ A modelagem desse problema divide-se em duas fases.
 - **Primeiro:** O algoritmo gera uma matriz de padrões de corte, gerando todas as combinações possíveis de peças que cabem dentro da barra original
 - **Segundo:** Aplica o modelo de programação linear inteira, para minimizar o número total de barras inteiras processadas.
 
+<br>
+
 # O Problema
 Uma fábrica de papel trabalha com a produção de bobinas para impressoras. Bobinas grandes de comprimento L são cortadas em itens menores de comprimento l1, l2, . . . , ln de acordo com as demandas D1, D2, . . . , Dn de cada um dos n tipos de bobinas menores.
 
