@@ -22,47 +22,6 @@ opcoes_arquivos = [ "--- Selecione um arquivo ---",
 st.sidebar.header("Configurações")
 arquivo_selecionado = st.sidebar.selectbox("Escolha a instância de dados:", opcoes_arquivos, index=0)
 
-def carregar_dados(nome_arquivo):
-    """
-    Substitua esta função pela lógica real de leitura do seu arquivo (ex: pd.read_csv).
-    """
-    # Mockup de dados retornados a partir do arquivo
-    return {
-        "nome": nome_arquivo,
-        "L": 1000, 
-        "l": [200, 300, 400], 
-        "demandas": [50, 40, 30]
-    }
-
-def executar_gurobi(dados):
-    """
-    Montagem e execução do modelo Gurobi com os dados carregados.
-    """
-    modelo = gp.Model("Cutting_Stock")
-    modelo.setParam('OutputFlag', 0) # Oculta o log do terminal para não travar o Streamlit
-    
-    # ---------------------------------------------------------
-    # INSIRA SUA MODELAGEM AQUI (Variáveis, Objetivo, Restrições)
-    # Exemplo genérico usando suas variáveis anteriores:
-    # n = len(dados['l'])
-    # x = modelo.addVars(...)
-    # modelo.setObjective(...)
-    # modelo.addConstrs(...)
-    # modelo.optimize()
-    # ---------------------------------------------------------
-    
-    # Mockup de extração de resultados (simulando que o modelo rodou)
-    # Na prática, você fará um loop filtrando os padrões onde x[j].X > 0
-    resultados = pd.DataFrame({
-        "ID do Padrão": [1, 4, 7],
-        "Configuração de Corte": ["[2, 1, 0]", "[0, 3, 0]", "[1, 0, 2]"],
-        "Quantidade Utilizada": [15, 8, 22],
-        "Perda": [0.0, 100.0, 0.0]
-    })
-    
-    # Retorna o status, o dataframe e o valor objetivo fictício
-    return GRB.OPTIMAL, resultados, f"{modelo.objVal:.2f}"
-
 if arquivo_selecionado and arquivo_selecionado != "--- Selecione um arquivo ---":
 
     tamanho_bobina, maximo_padroes, comprimento_cortes, demandas, quantidade_comprimentos_cortes =dados.organiza_dados(dados.carregar_dados(arquivo_selecionado))
@@ -87,15 +46,14 @@ if st.sidebar.button("Executar"):
                 model.carregar_dados(L, comprimento_cortes, demandas, quantidade_comprimentos_cortes, m)
                 status_modelo, df_resultados, valor_objetivo = model.calcular_modelo()
                 
-                if status_modelo == GRB.OPTIMAL:
+                if status_modelo == 2:
                     st.success("concluido com sucesso")
                     
-                    # KPIs da otimização
                     col1, col2 = st.columns(2)
                     col1.metric(label="Status do Modelo", value="Ótimo")
                     col2.metric(label="Valor da Função Objetivo", value=valor_objetivo)
                     
-                    # Tabela final exibindo apenas os padrões escolhidos
+                    # Tabela final exibindo os padrões escolhidos
                     st.subheader("Padrões Escolhidos")
                     st.dataframe(df_resultados, use_container_width=True, hide_index=True)
                 else:

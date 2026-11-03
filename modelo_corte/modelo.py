@@ -16,6 +16,7 @@ class Modelo:
         self.m = None
         self.qtd_padrao = None
         self.qtd_cortes = None
+        self.perdas = None
 
     def carregar_dados(self, L, l, D, n, m):
         """Carrega as variaveis que serão usadas no modelo
@@ -29,14 +30,11 @@ class Modelo:
         self.L = L                          # Tamanho da Bobina grande
         self.l = l                          # Comprimento dos cortes
         self.D = D                          # Demanda de cada corte
-        self.Q = self.gerar_padroes(L,l)    # Quantidade de corte por padrão
+        self.Q, self.perdas = self.gerar_padroes(L,l)    # Quantidade de corte por padrão
         self.n = n
         self.m = m
         self.qtd_padrao = len(self.Q[0])    # Quantidade de padrões de corte
         self.qtd_cortes = len(self.l)       # Quantidade dy comprimentos dos cortes
-
-
-
 
 
     def gerar_padroes(self, L, cortes):
@@ -50,17 +48,18 @@ class Modelo:
         menor_corte = min(cortes)
         limites = [range((L // c) + 1) for c in cortes]
         padroes = []
-        
+        perdas = []
+
         for combinacao in product(*limites):
 
             total = sum(qtd * tamanho for qtd, tamanho in zip(combinacao, cortes))
             perda = L - total
 
             if 0 < total <= L and perda < menor_corte:
-                padrao_com_perda = list(combinacao) + [perda]
-                padroes.append(padrao_com_perda)
+                padroes.append(list(combinacao))
+                perdas.append(perda)
 
-        return np.array(padroes).T
+        return padroes, perdas
 
     def calcular_modelo(self):
         """Calcula o modelo de otimização"""
@@ -87,7 +86,7 @@ padroes: {self.Q}""")
 
         # Restrições
         r1 = modelo.addConstrs(
-            sum(self.x[j] * self.Q[i, j] for j in range(self.qtd_padrao)) == self.D[i]
+            sum(self.x[j] * self.Q[i][j] for j in range(self.qtd_padrao)) == self.D[i]
                                          for i in range(self.qtd_cortes)
         )
 
@@ -103,13 +102,11 @@ padroes: {self.Q}""")
                 qtd = self.x[i].x
 
                 if qtd > 0.5:
-                    padrao = self.Q[:, i]
-
                     lista_resultados.append({
                         "ID do Padrão": i + 1,
-                        "Configuração de Corte": padrao[:-1].tolist(), 
+                        "Configuração de Corte": self.Q[i].tolist(), 
                         "Quantidade Utilizada": int(qtd),
-                        "Perda": padrao[-1]
+                        "Perda": self.perdas[i]
                     })
             
             resultados = pd.DataFrame(lista_resultados)
@@ -123,30 +120,16 @@ padroes: {self.Q}""")
     
     def padroes_usados(self):
         pass 
-    # def variaveis(self, variavel):
-    #     """Define as variaveis de decição"""
-        
-    # def funcao_objetivo(self):
-    #     """Define as variaveis de decição"""
-    #     self.modelo.setObjective(
-    #         sum(self.x[j] for j in range(len(self.x))),
-    #         sense = gp.GRB.MINIMIZE)
-
-    # def restricoes(self):
-    #     """Define as variaveis de decição"""
-    #     r1 = self.modelo.addConstrs(
-    #         sum(self.x[j] * Q[j][i] for j in range(len(self.x))) == D[i]
-    #                    for i in range(len(D)))
 
     def resolucao(self):
         """Resolve o modelo"""
-        modelo.setParam("OutputFlag", 0)
-        modelo.optimize()
+        self.modelo.setParam("OutputFlag", 0)
+        self.modelo.optimize()
 
-        if modelo.status == 2:
-            print(f"Valor ótimo: {modelo.objVal:.2f}")
-        for i in range(m):
-            print(f"{x[i].x:.2f}")
+        if self.modelo.status == 2:
+            print(f"Valor ótimo: {self.modelo.objVal:.2f}")
+        for i in range(self.m):
+            print(f"{self.x[i].x:.2f}")
         else:
             print("Solução não encontrada")
 
@@ -154,5 +137,8 @@ padroes: {self.Q}""")
 if __name__ == "__main__":
     modelo = Modelo()
 
-    tamanho_bobina = 130
+    padroes, perda =modelo.gerar_padroes(130, [50, 40, 30])
+
+    for i in range(len(padroes)):
+        print(f"Padrão {i + 1} | {padroes[i]} | Perda: {perda[i]}")
 
