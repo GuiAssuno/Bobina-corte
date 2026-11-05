@@ -22,6 +22,9 @@ opcoes_arquivos = [ "--- Selecione um arquivo ---",
 st.sidebar.header("Configurações")
 arquivo_selecionado = st.sidebar.selectbox("Escolha a instância de dados:", opcoes_arquivos, index=0)
 
+ 
+alternativa = st.sidebar.toggle("Ativar Limite de Padrões", value=False)
+
 if arquivo_selecionado and arquivo_selecionado != "--- Selecione um arquivo ---":
 
     tamanho_bobina, maximo_padroes, comprimento_cortes, demandas, quantidade_comprimentos_cortes =dados.organiza_dados(dados.carregar_dados(arquivo_selecionado))
@@ -44,7 +47,7 @@ if st.sidebar.button("Executar"):
             try:
                 model = Modelo()
                 model.carregar_dados(L, comprimento_cortes, demandas, quantidade_comprimentos_cortes, m)
-                status_modelo, df_resultados, valor_objetivo = model.calcular_modelo()
+                status_modelo, df_resultados, valor_objetivo = model.calcular_modelo() # alternativa adicionar aqui quando terminar o modelo com limite de padrões
                 
                 if status_modelo == 2:
                     st.success("concluido com sucesso")
@@ -55,7 +58,7 @@ if st.sidebar.button("Executar"):
                     
                     # Tabela final exibindo os padrões escolhidos
                     st.subheader("Padrões Escolhidos")
-                    st.dataframe(df_resultados, use_container_width=True, hide_index=True)
+                    st.dataframe(df_resultados, width='stretch', hide_index=True)
                 else:
                     st.warning("Solução otima não encontrada")
                     
