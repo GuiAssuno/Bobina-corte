@@ -47,7 +47,7 @@ if st.sidebar.button("Executar"):
                 status_modelo, df_resultados, valor_objetivo = model.calcular_modelo()
                 
                 if status_modelo == 2:
-                    st.success("concluido com sucesso")
+                    st.success("Concluido com sucesso")
                     
                     col1, col2 = st.columns(2)
                     col1.metric(label="Status do Modelo", value="Ótimo")
