@@ -11,9 +11,10 @@ def carregar_dados(nome_arquivo):
         linhas = arquivo.read()
     return linhas
 
-def organiza_dados(linhas):
+def organiza_dados(nome_arquivo):
     """pega o conteudo das linhas e organiza nas variaveis"""
-
+    linhas = carregar_dados(nome_arquivo)
+    
     tamanho_bobina = 0       # Tamanho da Bobina grande
     maximo_padroes = 0       # Maximo de padroes
     comprimento_cortes = []  # Comprimento dos cortes

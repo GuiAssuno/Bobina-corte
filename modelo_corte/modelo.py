@@ -4,41 +4,32 @@ from itertools import product
 import pandas as pd
 
 class Modelo:
-    def __init__(self):
-        """Classe para modelar o problema de corte de bobinas"""
-
-        self.modelo = gp.Model()
-        self.x = None               # 
-        self.objetivo = None        # 
-        self.L = None               # Tamanho da bobina grande
-        self.l = []                 # Comprimentos dos cortes
-        self.Q = None               # Matriz com os padrões de cortes possiveis
-        self.D = []                 # Demanda de cada corte
-        self.n = None               # Quantidade dy comprimentos dos cortes
-        self.m = None               # Quantidade máxima de padrões
-        self.qtd_padrao = None      # Quantidade de padrões de corte
-        self.qtd_cortes = None      # Quantidade dy comprimentos dos cortes
-        self.perdas = None          # Lista com as perdas de cada padrão
-        self._LIMITE = 0.9999999999 # Limite para considerar um padrão como utilizado
-
-    def carregar_dados(self, L, l, D, n, m):
-        """Carrega as variaveis que serão usadas no modelo
+    def __init__(self,L, l, D, n, m, a):
+        """Classe para modelar o problema de corte de bobinas
         Args:
             L (int): Tamanho da bobina grande
             l (list): Lista com os tamanhos dos cortes
             D (list): Lista com as demandas de cada corte
             n (int): Número de cortes distintos
-            m (int): Número máximo de padrões"""
-        
-        self.L = L   # Tamanho da Bobina grande
-        self.l = l   # Comprimento dos cortes
-        self.D = D   # Demanda de cada corte
-        self.Q, self.perdas = self.gerar_padroes(L,l)    # Quantidade de corte por padrão
-        self.n = n
-        self.m = m                     # Quantidade máxima de padrões
-        self.qtd_padrao = len(self.Q)  # Quantidade de padrões de corte
-        self.qtd_cortes = len(self.l)  # Quantidade dy comprimentos dos cortes
+            m (int): Número máximo de padrões
+            a (bool): alterna entre modelo A e B"""
 
+        self.modelo = gp.Model() # Cria a instancia da classe modelo
+        self.x = None            # armazena as vvariável de decisão
+        self.y = None            # armazena as vvariável de decisão
+        self.objetivo = None     # 
+
+        self.L = L  # Tamanho da bobina grande
+        self.l = l  # Comprimentos dos cortes
+        self.D = D  # Demanda de cada corte
+        self.n = n  # Quantidade dy comprimentos dos cortes
+        self.m = m  # Quantidade máxima de padrões
+        self.a = a  # Armazena o tipo do modelo: alterna A) Sem limite de padrões e B) Com limite de padrões
+        self.Q, self.perdas = self.gerar_padroes(L,l) # Matriz com os padrões de cortes possiveis | Lista com as perdas de cada padrão
+
+        self.qtd_padrao = len(self.Q) # Quantidade de padrões de corte
+        self.qtd_cortes = len(self.l) # Quantidade dy comprimentos dos cortes
+        self._LIMITE = 0.9999999999 # Limite para considerar um padrão como utilizado
 
     def gerar_padroes(self, L, cortes):
         """Funçao para gerar todos os padrões de cortes possiveis
@@ -76,7 +67,7 @@ class Modelo:
 
         # Variáveis de decisão
         self.x = modelo.addVars(self.qtd_padrao, lb = 0 ,vtype = gp.GRB.INTEGER)
-
+        if (self.a): self.y = modelo.addVars(self.qtd_padrao, vtype=gp.GRB.BINARY)
         # Função Objetivo
         modelo.setObjective(
             sum(self.x[j] for j in range(self.qtd_padrao)),
@@ -89,39 +80,62 @@ class Modelo:
                                          for i in range(self.qtd_cortes)
         )
 
-        print("Modelo de otimização criado com sucesso. Iniciando a resolução...")
+        # Restrição da variante B
+        if self.a:  
+            # Ligação x_j <= M_j * y_j
+            for j in range(self.qtd_padrao):
+                M_j = max(-(-self.D[i] // self.Q[j][i])     # Big M
+                    for i in range(self.qtd_cortes) if self.Q[j][i] > 0
+                )
+                r2 = modelo.addConstr(self.x[j] <= M_j * self.y[j])
+
+            # Limite de padrões distintos
+            r3 = modelo.addConstr(sum(self.y[j] for j in range(self.qtd_padrao)) <= self.m)
+
+
 
         # Resolução
         modelo.setParam("OutputFlag", 0)
         modelo.optimize()
 
         if modelo.status == 2:
-            lista_resultados = []
+            linhas  = []
+            colunas = self.padroes_usados()
             for i in range(self.qtd_padrao):
                 qtd = self.x[i].x
 
                 if qtd > self._LIMITE:
-                    lista_resultados.append({
-                        "ID do Padrão": i + 1,
-                        "Configuração de Corte": self.Q[i], 
-                        "Quantidade Utilizada": int(qtd),
-                        "Perda": self.perdas[i]
-                    })
-            
-            resultados = pd.DataFrame(lista_resultados)
+                    linhas .append([
+                        i + 1,         # ID do padrão
+                        *self.Q[i],    # o Padrão utilizado
+                        int(qtd),      # Quantidade de vezes que o padrão foi utilizado
+                        self.perdas[i] # Quantidade de perda do padrão utilizado 
+                    ])
+
+            resultados = pd.DataFrame(linhas, columns=colunas)
 
             if __name__ == "__main__": self.exibicao_debug(modelo)
 
-            return modelo.status, resultados, f"{modelo.objVal:.2f}"
+            return [modelo.status, # retorna o status do modelo
+                    resultados,    # Data Frame com os resultados
+                    f"{modelo.objVal:.2f}", # Valor ótimo
+                    (modelo.objVal * self.L) / 100, # Total de metros utilizados
+                    sum(perda * qtd for qtd, perda in zip(resultados[""]["Quantidade Utilizada"], # Soma do total das perdas
+                                                          resultados[""]["Perda"]))]
         
         else:
             print("Solução não encontrada")
-            return modelo.status, pd.DataFrame(), "0"
+            return modelo.status, pd.DataFrame(), "0", 0, 0
         
-    
     def padroes_usados(self):
-        pass 
-
+        
+        return pd.MultiIndex.from_tuples(
+            [("", "ID")]+ 
+            [("Padrão de Corte", str(tam_corte)) for tam_corte in self.l] + 
+            [("", "Quantidade Utilizada"),
+             ("","Perda")]
+        )
+    
     def exibicao_debug(self, modelo):
         """Função de exibição de debug para mostrar os resultados do modelo"""
 
@@ -148,9 +162,7 @@ class Modelo:
         
         print(f"└{'─'*4}┴{'─'*10}┴{'─'*10}┴{'─'*10}┘")
 
-
 if __name__ == "__main__":
-    modelo = Modelo()
     L = 130           # Tamanho da Bobina grande
     l = [50, 40, 30]  # Comprimento dos cortes
 
@@ -159,7 +171,7 @@ if __name__ == "__main__":
     n = len(l)        # Quantidade dy comprimentos dos cortes
     m = 7             # Quantidade de padrões de corte
 
-    modelo.carregar_dados(L, l, D, n, m)
+    modelo = Modelo(L, l, D, n, m)
     resultado = modelo.calcular_modelo()
 
     if L == 0:

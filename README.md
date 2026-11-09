@@ -14,3 +14,5 @@ Uma fábrica de papel trabalha com a produção de bobinas para impressoras. Bob
 a) Determine qual a melhor maneira de cortar as bobinas grandes em estoque de modo a atender à demanda e que minimize o número de bobinas grandes utilizadas. Dica: determine todos os possíveis padrões de corte das bobinas grandes nos tamanhos menores requeridos e então modele de forma a escolher padrões que forneçam melhor resultado.
 
 b) Utilizar uma grande número de padrões de corte para o atendimento da demanda pode ter custo elevado para a empresa (muitos ajustes devem ser feitos nas máquinas de corte). Modifique seu modelo de forma que seja permitido utilizar no máximo um número m de padrões de corte. Qual o resultado obtido?
+
+
