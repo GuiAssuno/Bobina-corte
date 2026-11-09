@@ -1,13 +1,13 @@
 @echo off
 setlocal
  
-REM Diretorio onde o .bat esta (Bobina-corte)
+REM ===== Diretorio onde o .bat esta ===== 
 set "BASE_DIR=%~dp0"
 set "VENV_DIR=%BASE_DIR%.venv"
 set "VENV_PY=%VENV_DIR%\Scripts\python.exe"
 set "APP_DIR=%BASE_DIR%modelo_corte"
  
-REM Verificar o launcher do Python do Windows ----
+REM ===== Verificar o launcher do Python do Windows ===== 
 where py >nul 2>&1
 if errorlevel 1 (
     echo [ERRO] Launcher "py" nao encontrado.
@@ -17,7 +17,7 @@ if errorlevel 1 (
     exit /b 1
 )
  
-REM Remover .venv quebrado (ex: criado pelo Python do MSYS2) ----
+REM ===== Remover .venv quebrado ===== 
 if exist "%VENV_DIR%" (
     if not exist "%VENV_PY%" (
         echo [..] .venv invalido encontrado, removendo...
@@ -25,7 +25,7 @@ if exist "%VENV_DIR%" (
     )
 )
  
-REM Criar .venv se nao existir ----
+REM ===== Criar .venv se nao existir ===== 
 if exist "%VENV_PY%" (
     echo [OK] .venv ja existe.
 ) else (
@@ -38,14 +38,16 @@ if exist "%VENV_PY%" (
     )
 )
  
-REM Garantir que o pip existe no .venv ----
+REM =====  Garantir que o pip existe no .venv ===== 
 "%VENV_PY%" -m pip --version >nul 2>&1
 if errorlevel 1 (
     echo Instalando pip no .venv...
     "%VENV_PY%" -m ensurepip --upgrade
 )
  
-REM Verificar/instalar dependencias ----
+REM ===== Verificar/instalar dependencias ===== 
+
+REM ===== Biblioteca do Streamlit
 "%VENV_PY%" -c "import streamlit" >nul 2>&1
 if errorlevel 1 (
     echo Instalando streamlit...
@@ -58,7 +60,8 @@ if errorlevel 1 (
 ) else (
     echo [OK] streamlit ja instalado.
 )
- 
+
+REM ===== Biblioteca do Gurobi
 "%VENV_PY%" -c "import gurobipy" >nul 2>&1
 if errorlevel 1 (
     echo Instalando gurobipy...
@@ -71,8 +74,22 @@ if errorlevel 1 (
 ) else (
     echo [OK] gurobipy ja instalado.
 )
- 
-REM Executar o app ----
+
+REM ===== Biblioteca para o Excel
+"%VENV_PY%" -c "import openpyml" >nul 2>&1
+if errorlevel 1 (
+    echo Instalando gurobipy...
+    "%VENV_PY%" -m pip install gurobipy
+    if errorlevel 1 (
+        echo [ERRO] Falha ao instalar gurobipy.
+        pause
+        exit /b 1
+    )
+) else (
+    echo [OK] openpyml ja instalado.
+)
+
+REM ===== Executar o app ===== 
 echo Iniciando aplicacao...
 cd /d "%APP_DIR%"
 "%VENV_PY%" -m streamlit run main.py
