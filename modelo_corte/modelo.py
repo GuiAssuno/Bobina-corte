@@ -121,7 +121,7 @@ class Modelo:
                     f"{modelo.objVal:.2f}", # Valor ótimo
                     (modelo.objVal * self.L) / 100, # Total de metros utilizados
                     sum(perda * qtd for qtd, perda in zip(resultados[""]["Quantidade Utilizada"], # Soma do total das perdas
-                                                          resultados[""]["Perda"]))]
+                                                          resultados[""]["Perda (cm)"]))]
         
         else:
             print("Solução não encontrada")
@@ -131,9 +131,9 @@ class Modelo:
         
         return pd.MultiIndex.from_tuples(
             [("", "ID")]+ 
-            [("Padrão de Corte", str(tam_corte)) for tam_corte in self.l] + 
+            [("Padrão de Corte (cm)", str(tam_corte)) for tam_corte in self.l] + 
             [("", "Quantidade Utilizada"),
-             ("","Perda")]
+             ("","Perda (cm)")]
         )
     
     def exibicao_debug(self, modelo):
