@@ -16,7 +16,7 @@ class Modelo:
 
         self.modelo = gp.Model() # Cria a instancia da classe modelo
         self.x = None            # armazena as vvariável de decisão
-        self.y = None            # armazena as vvariável de decisão
+
         self.objetivo = None     # 
 
         self.L = L  # Tamanho da bobina grande
@@ -67,7 +67,7 @@ class Modelo:
 
         # Variáveis de decisão
         self.x = modelo.addVars(self.qtd_padrao, lb = 0 ,vtype = gp.GRB.INTEGER)
-        if (self.a): self.y = modelo.addVars(self.qtd_padrao, vtype=gp.GRB.BINARY)
+
         # Função Objetivo
         modelo.setObjective(
             sum(self.x[j] for j in range(self.qtd_padrao)),
@@ -80,17 +80,7 @@ class Modelo:
                                          for i in range(self.qtd_cortes)
         )
 
-        # Restrição da variante B
-        if self.a:  
-            # Ligação x_j <= M_j * y_j
-            for j in range(self.qtd_padrao):
-                M_j = max(-(-self.D[i] // self.Q[j][i])     # Big M
-                    for i in range(self.qtd_cortes) if self.Q[j][i] > 0
-                )
-                r2 = modelo.addConstr(self.x[j] <= M_j * self.y[j])
 
-            # Limite de padrões distintos
-            r3 = modelo.addConstr(sum(self.y[j] for j in range(self.qtd_padrao)) <= self.m)
 
 
 
