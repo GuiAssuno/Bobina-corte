@@ -76,12 +76,12 @@ if errorlevel 1 (
 )
 
 REM ===== Biblioteca para o Excel
-"%VENV_PY%" -c "import openpyml" >nul 2>&1
+"%VENV_PY%" -c "import openpyxl" >nul 2>&1
 if errorlevel 1 (
-    echo Instalando gurobipy...
-    "%VENV_PY%" -m pip install gurobipy
+    echo Instalando openpyxl..
+    "%VENV_PY%" -m pip install openpyxl
     if errorlevel 1 (
-        echo [ERRO] Falha ao instalar gurobipy.
+        echo [ERRO] Falha ao instalar openpyxl.
         pause
         exit /b 1
     )
