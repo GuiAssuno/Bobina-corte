@@ -1,6 +1,5 @@
 import os
 
-
 def carregar_dados(nome_arquivo):
     """Carrega os dados dos arquivos"""
 
