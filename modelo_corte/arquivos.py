@@ -37,7 +37,7 @@ def organiza_dados(nome_arquivo):
 
 
 if __name__ == "__main__":
-    L, m, l, D, n = organiza_dados("inst_100_4")
+    L, m, l, D, n = organiza_dados("Modelo livre")
 
     print(f"""Tamanho da Bobina Grande: {L}
 Maximo de Padroes: {m}
