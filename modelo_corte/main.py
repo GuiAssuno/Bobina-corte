@@ -41,25 +41,35 @@ if arquivo_selecionado and arquivo_selecionado != "--- Selecione um arquivo ---"
 
     # Caixa de entrada de numeros que devine o maximo de padrões que pode utilizar
     m = st.sidebar.number_input("Máximo de Padrões",  
-                                 min_value=1, 
-                                 max_value=100,
-                                 value=max_padroes, 
-                                 step=1)
+                                min_value=1, 
+                                max_value=100,
+                                value=max_padroes, 
+                                step=1)
     
     # Monta a lista com o as demandas e as suas quantidades os seus respectivos tamanhos de cortes
     
+    teste = 0
+
+    if arquivo_selecionado == "Modelo Livre":
+        st.sidebar.number_input("Número de linhas:",
+                                min_value=0,
+                                max_value=10,
+                                value=teste,
+                                step=1)
+    else:
+        teste = qtd_compr_cortes
     
-    for dem, comp in (zip(demandas, compr_cortes)): 
+    for i in range(teste): 
         coluna = st.sidebar.columns(2, gap="xxsmall")
         coluna[0].number_input("Quantidade demandada (unid):",
                                 min_value=0,
                                 max_value=10000,
-                                value=dem,
+                                value=demandas,
                                 step=1)
         coluna[1].number_input("Comprimento do corte (cm):",
                                 min_value=0,
                                 max_value=L,
-                                value=comp,
+                                value=compr_cortes,
                                 step=1)
 
 # Botão Executar 
