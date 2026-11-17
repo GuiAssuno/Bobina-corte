@@ -11,12 +11,13 @@ st.set_page_config(page_title="Otimização de Padronagem", layout="wide")
 st.title("Trabalho de Programação Linear - Otimização de padrão de cortes")
 
 # Lista das 16 instâncias
-opcoes_arquivos = [ "--- Selecione um arquivo ---",
+opcoes_arquivos = [ "--- Selecione um arquivo ---", 
+    "Modelo Livre",
     "inst_100_4", "inst_100_5", "inst_100_6", "inst_100_7", 
     "inst_200_4", "inst_200_5", "inst_200_6", "inst_200_7", 
     "inst_250_4", "inst_250_5", "inst_250_6", "inst_250_7", 
     "inst_300_4", "inst_300_5", "inst_300_6", "inst_300_7",
-"teste"]
+    "teste"]
 
 # Barra lateral para seleção
 st.sidebar.header("Configurações")
@@ -46,8 +47,20 @@ if arquivo_selecionado and arquivo_selecionado != "--- Selecione um arquivo ---"
                                  step=1)
     
     # Monta a lista com o as demandas e as suas quantidades os seus respectivos tamanhos de cortes
+    
+    
     for dem, comp in (zip(demandas, compr_cortes)): 
-        st.sidebar.write(f"Demanda de {dem} unit: de {comp} cm")
+        coluna = st.sidebar.columns(2, gap="xxsmall")
+        coluna[0].number_input("Quantidade demandada (unid):",
+                                min_value=0,
+                                max_value=10000,
+                                value=dem,
+                                step=1)
+        coluna[1].number_input("Comprimento do corte (cm):",
+                                min_value=0,
+                                max_value=L,
+                                value=comp,
+                                step=1)
 
 # Botão Executar 
 if st.sidebar.button("Executar"):
@@ -80,6 +93,3 @@ if st.sidebar.button("Executar"):
 # Exibição do status da interface
 if arquivo_selecionado and arquivo_selecionado != "--- Selecione um arquivo ---":
     st.write(f"**Instância selecionada para cálculo:** `{arquivo_selecionado}`")
-
-
-    
