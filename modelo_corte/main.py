@@ -5,6 +5,7 @@ from gurobipy import GRB
 import arquivos as dados
 import modelo as modelo
 from modelo import Modelo
+import excel as caminho
 
 # Configuração inicial da página
 st.set_page_config(page_title="Otimização de Padronagem", layout="wide")
@@ -61,16 +62,16 @@ if arquivo_selecionado and arquivo_selecionado != "--- Selecione um arquivo ---"
     
     for i in range(teste): 
         coluna = st.sidebar.columns(2, gap="xxsmall")
-        coluna[0].number_input("Quantidade demandada (unid):",
-                                min_value=0,
-                                max_value=10000,
-                                value=demandas,
-                                step=1)
-        coluna[1].number_input("Comprimento do corte (cm):",
-                                min_value=0,
-                                max_value=L,
-                                value=compr_cortes,
-                                step=1)
+        D = coluna[0].number_input("Quantidade demandada (unid):",
+                                    min_value=0,
+                                    max_value=10000,
+                                    value=demandas[i],
+                                    step=1)
+        l = coluna[1].number_input("Comprimento do corte (cm):",
+                                    min_value=0,
+                                    max_value=L,
+                                    value=compr_cortes[i],
+                                    step=1)
 
 # Botão Executar 
 if st.sidebar.button("Executar"):
@@ -94,6 +95,11 @@ if st.sidebar.button("Executar"):
                     # Tabela final exibindo os padrões escolhidos
                     st.subheader("Padrões Escolhidos")
                     st.dataframe(df_resultados, width='stretch', hide_index=True)
+
+                    # Salva o arquivo Excel
+                    st.download_button("Baixar Excel",
+                                       data=caminho.salvar_arquivo(arquivo_selecionado),
+                                       file_name=f"{arquivo_selecionado}{caminho.tipos_excel}")
                 else:
                     st.warning("Solução ótima NÃO encontrada", title="Status do Modelo")
                     
