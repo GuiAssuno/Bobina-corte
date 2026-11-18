@@ -100,27 +100,27 @@ for id, x in enumerate(zip(Q, perda)):
 
 
 # Percorre todas as linhas e colunas que possuem dados para aplicar a formatação célula por célula
-for linha in ws.iter_cols(min_row=1, max_row=ws.max_row, min_col=1, max_col=ws.max_column):
-    for x, celula in enumerate(linha):
-        
-        if not x: # Cabeçalho
-            celula.fill = cor_fundo_header
-            celula.alignment = alinhamento
-            celula.border = borda_medium
-            celula.font = negrito
-        else: 
-            if x in [2, 3 , 6]: # Padroes usados
-                celula.fill = cor_fundo_usado
-                celula.alignment = alinhamento
-                celula.border = borda_fina
-            else: # Padroes não usados
-                celula.fill = cor_fundo_descartado
-                celula.alignment = alinhamento
-                celula.border = borda_fina
+def salvar_arquivo(opcao):
+    for linha in ws.iter_cols(min_row=1, max_row=ws.max_row, min_col=1, max_col=ws.max_column):
+        for x, celula in enumerate(linha):
             
+            if not x: # Cabeçalho
+                celula.fill = cor_fundo_header
+                celula.alignment = alinhamento
+                celula.border = borda_medium
+                celula.font = negrito
+            else: 
+                if x in [2, 3 , 6]: # Padroes usados
+                    celula.fill = cor_fundo_usado
+                    celula.alignment = alinhamento
+                    celula.border = borda_fina
+                else: # Padroes não usados
+                    celula.fill = cor_fundo_descartado
+                    celula.alignment = alinhamento
+                    celula.border = borda_fina
 
-# Escolhe o caminho que quer salvar 
-caminho_salvar = salvar("instancia_4")
+    # Escolhe o caminho que quer salvar 
+    caminho_salvar = salvar(opcao)
 
-# Salva o arquivo Excel
-wb.save(caminho_salvar)
+    # Salva o arquivo Excel
+    return wb.save(caminho_salvar)
