@@ -25,11 +25,12 @@ def salvar(nome):
     
 def gerar_padroes(L, cortes):
         menor_corte = min(cortes) # Obtem o tamanho do menor corte
-        limites = [range((L // c) + 1) for c in cortes]                                                        
+        limites = [range((L // c) + 1) for c in cortes]
+        colunas = len(cortes)                                                     
         
         padroes = [] # lista para armazenar os padrões de corte possiveis
         perdas = []  # lista para armazenar as perdas dos padrões de corte possiveis
-
+        
         for combinacao in product(*limites): # O product faz o plano cartesiano para cada RANGE em limites
 
             total = sum(qtd * tamanho for qtd, tamanho in zip(combinacao, cortes))  
@@ -38,7 +39,7 @@ def gerar_padroes(L, cortes):
             if 0 < total <= L and perda < menor_corte:
                 padroes.append(list(combinacao))
                 perdas.append(perda)
-        return padroes, perdas
+        return padroes, perdas, colunas
 
 
 # Fonte em negrito
@@ -83,16 +84,19 @@ ws = wb.active
 ws.title = "Padrões"
 
 # Adiciona o cabeçalho
+Q, perda, colunas = gerar_padroes(130, [50, 40, 30])
+
 ws["A1"] = "ID"
-ws["B1"] = "50 cm"
-ws["C1"] = "40 cm"
-ws["D1"] = "30 cm"
-ws["E1"] = "Perda (cm)"
+
+for c in range(colunas):
+    ws.cell(row=1, column=c, value=colunas + "cm")
+
+colunas_perda = colunas+2
+
+ws.cell(row=1, column=len(colunas_perda), value="Perda (cm)")
 
 # Alenta um pouco a largura da celula
-ws.column_dimensions["E"].width = 17
-
-Q, perda = gerar_padroes(130, [50, 40, 30])
+ws.column_dimensions[colunas_perda].width = 17
 
 # Adiciona dados nas linhas
 for id, x in enumerate(zip(Q, perda)): 
@@ -124,3 +128,6 @@ def salvar_arquivo(opcao):
 
     # Salva o arquivo Excel
     return wb.save(caminho_salvar)
+
+if __name__ == "__main__":
+    salvar_arquivo("teste")
