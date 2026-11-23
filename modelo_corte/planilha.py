@@ -27,25 +27,23 @@ class excel:
         self.ws = self.wb.active
         self.ws.title = "Padrões"
 
-        # Fonte em negrito
-        self.negrito = Font(bold=True)
+        # Cabeçalho formatado
+        self.cabecalho = Font(bold=True, color="FFFFFFFF")
 
         # Mudando a cor de fundo
         # A cor deve ser passada em formato hexadecimal ARGB. Ex: Amarelo = "FFFF00"
-        self.cor_fundo_descartado = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="darkVertical") # Amarelo
-        self.cor_fundo_usado = PatternFill(start_color="FF28A745", end_color="FF28A745", fill_type="lightVertical") # Verde
-        self.cor_fundo_header = PatternFill(start_color="2F4F4F", end_color="2F4F4F", fill_type="darkGray") # cinza
+        self.cor_fundo_descartado = PatternFill(start_color="FFEEEEEE", end_color="FFEEEEEE", fill_type="solid") # Cinza claro
+        self.cor_fundo_usado = PatternFill(start_color="F295D0A1", end_color="F295D0A1", fill_type="solid") # Verde acizentado
+        self.cor_fundo_header = PatternFill(start_color="FF2E2E2E", end_color="FF2E2E2E", fill_type="solid") # Cinza escuro
 
         # Centralizando o conteúdo
         self.alinhamento = Alignment(horizontal="center", vertical="center")
 
         # Colocando borda
         # Primeiro definimos o estilo da linha (fina e preta), depois aplicamos aos 4 lados da célula
-        self.linha_fina = Side(border_style="thin", color="000000")
-        self.linha_medium = Side(border_style="medium", color="000000")
+        self.linha_fina = Side(border_style="thin", color="FF000000")
 
         self.borda_fina = Border(left=self.linha_fina, right=self.linha_fina, top=self.linha_fina, bottom=self.linha_fina)
-        self.borda_medium = Border(left=self.linha_medium, right=self.linha_medium, top=self.linha_medium, bottom=self.linha_medium)
         # Borde Style:
         # • thin (fina)
         # • medium (média)
@@ -73,7 +71,7 @@ class excel:
 
         self.ws.cell(row=1, column=coluna_perdas, value="Perda (cm)")
 
-        letra = list("0ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+        letra = list("AABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
         # Alenta um pouco a largura da celula
         self.ws.column_dimensions[letra[coluna_perdas]].width = 17
@@ -103,8 +101,8 @@ class excel:
                 if not x: # Cabeçalho
                     celula.fill = self.cor_fundo_header
                     celula.alignment = self.alinhamento
-                    celula.border = self.borda_medium
-                    celula.font = self.negrito
+                    celula.border = self.borda_fina
+                    celula.font = self.cabecalho
                 else: 
                     if x in [2, 3 , 6]: # Padroes usados
                         celula.fill = self.cor_fundo_usado
