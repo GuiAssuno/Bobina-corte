@@ -5,7 +5,7 @@ from gurobipy import GRB
 import arquivos as dados
 import modelo as modelo
 from modelo import Modelo
-import excel as caminho
+from planilha import excel
 
 # Configuração inicial da página
 st.set_page_config(page_title="Otimização de Padronagem", layout="wide")
@@ -57,6 +57,7 @@ if arquivo_selecionado and arquivo_selecionado != "--- Selecione um arquivo ---"
                                 max_value=10,
                                 value=teste,
                                 step=1)
+        
     else:
         teste = qtd_compr_cortes
     
@@ -72,6 +73,8 @@ if arquivo_selecionado and arquivo_selecionado != "--- Selecione um arquivo ---"
                                     max_value=L,
                                     value=compr_cortes[i],
                                     step=1)
+        demandas[i] = D
+        compr_cortes[i] = l
 
 # Botão Executar 
 if st.sidebar.button("Executar"):
@@ -97,12 +100,16 @@ if st.sidebar.button("Executar"):
                     st.dataframe(df_resultados, width='stretch', hide_index=True)
 
                     # Salva o arquivo Excel
-                    st.download_button("Baixar Excel",
-                                       data=caminho.salvar_arquivo(arquivo_selecionado),
-                                       file_name=f"{arquivo_selecionado}{caminho.tipos_excel}")
+                    
+                    if st.button("Baixar Excel"):
+                        excel = excel(compr_cortes, model.Q, model.perdas)
+
+                        st.download_button(data = excel.buffer,
+                                           file_name="teste.xlsx")
+    
                 else:
                     st.warning("Solução ótima NÃO encontrada", title="Status do Modelo")
-                    
+
             except Exception as e:
                 st.error(f"Erro ao executar o modelo: {e}")
 
