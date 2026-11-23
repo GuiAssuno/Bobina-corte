@@ -84,34 +84,68 @@ if st.sidebar.button("Executar"):
                 status_modelo, df_resultados, valor_objetivo, mts_total, perda = model.calcular_modelo() 
                 
                 if status_modelo == 2:
-                    st.success("Valor Ótimo encontrado", title="Status do Modelo")
-                    
-                    col1, col2 = st.columns(2) # Cria Duas colunas na tela principal do 
-                    col1.metric(label="Valor da Função Objetivo", value=f"{valor_objetivo} cortes")
+                    planilha = excel(compr_cortes, model.Q, model.perdas)
+                    planilha.salvar_arquivo(arquivo_selecionado)
 
-                    with col2:
-                        sub_col1, sub_col2 = st.columns(2)
+                    st.session_state["Resultado"] = {
+                        "df": df_resultados,
+                        "objetivo": valor_objetivo,
+                        "totais": mts_total,
+                        "perda": perda,
+                        "nome": f"{arquivo_selecionado}_padroes.xlsx",
+                        "excel": planilha.buffer.getvalue()
+                    }
+
+                    
+                #     st.success("Valor Ótimo encontrado", title="Status do Modelo")
+                    
+                #     col1, col2 = st.columns(2) # Cria Duas colunas na tela principal do 
+                #     col1.metric(label="Valor da Função Objetivo", value=f"{valor_objetivo} cortes")
+
+                #     with col2:
+                #         sub_col1, sub_col2 = st.columns(2)
                         
-                        sub_col1.metric(label="Metros de bobinas utilizados", value=f"{mts_total} mts")
-                        sub_col2.metric(label="Metros de bobinas perdidos", value=f"{perda} mts")
+                #         sub_col1.metric(label="Metros de bobinas utilizados", value=f"{mts_total} mts")
+                #         sub_col2.metric(label="Metros de bobinas perdidos", value=f"{perda} mts")
                     
-                    # Tabela final exibindo os padrões escolhidos
-                    st.subheader("Padrões Escolhidos")
-                    st.dataframe(df_resultados, width='stretch', hide_index=True)
+                #     # Tabela final exibindo os padrões escolhidos
+                #     st.subheader("Padrões Escolhidos")
+                #     st.dataframe(df_resultados, width='stretch', hide_index=True)
 
-                    # Salva o arquivo Excel
+                #     # Salva o arquivo Excel
                     
-                    if st.button("Baixar Excel"):
-                        excel = excel(compr_cortes, model.Q, model.perdas)
-
-                        st.download_button(data = excel.buffer,
-                                           file_name="teste.xlsx")
+                #     if st.button("Baixar Excel"):
+                #         st.download_button(data = planilha.criar_cabecalho(compr_cortes, model.Q, model.perdas),
+                #                            file_name="teste.xlsx")
     
                 else:
                     st.warning("Solução ótima NÃO encontrada", title="Status do Modelo")
 
             except Exception as e:
                 st.error(f"Erro ao executar o modelo: {e}")
+
+if "Resultado" in st.session_state:
+    resultado = st.session_state["Resultado"]
+    st.success("Valor Ótimo encontrado", title="Status do Modelo")
+                        
+    col1, col2 = st.columns(2) # Cria Duas colunas na tela principal do 
+    col1.metric(label="Valor da Função Objetivo", value=f"{resultado['objetivo']} cortes")
+
+    with col2:
+        sub_col1, sub_col2 = st.columns(2)
+        
+        sub_col1.metric(label="Metros de bobinas utilizados", value=f"{resultado['totais']} mts")
+        sub_col2.metric(label="Metros de bobinas perdidos", value=f"{resultado['perda']} mts")
+
+    # Tabela final exibindo os padrões escolhidos
+    st.subheader("Padrões Escolhidos")
+    st.dataframe(resultado['df'], width='stretch', hide_index=True)
+
+    # Salva o arquivo Excel
+    st.download_button("Baixar Excel",
+                        data = resultado['excel'],
+                        file_name = resultado['nome'])
+
 
 # Exibição do status da interface
 if arquivo_selecionado and arquivo_selecionado != "--- Selecione um arquivo ---":
