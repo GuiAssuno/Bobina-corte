@@ -65,13 +65,18 @@ class excel:
         # Adicionar cabeçalho
         self.ws["A1"] = "ID"
 
-        for c, i in enumerate(self.cortes, 2):
-            self.ws.cell(row=1, column=i, value="{c} cm")
+        for i, c in enumerate(self.cortes, 2):
+            nm_col = f"{c} cm"
+            self.ws.cell(row=1, column=i, value=nm_col)
 
-        self.ws.cell(row=1, column=len(self.cortes)+2, value="Perda (cm)")
+        coluna_perdas = len(self.cortes)+2
+
+        self.ws.cell(row=1, column=coluna_perdas, value="Perda (cm)")
+
+        letra = list("0ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
         # Alenta um pouco a largura da celula
-        self.ws.column_dimensions["J"].width = 17
+        self.ws.column_dimensions[letra[coluna_perdas]].width = 17
 
     def adicionar_dados(self):
         # Adiciona dados nas linhas
