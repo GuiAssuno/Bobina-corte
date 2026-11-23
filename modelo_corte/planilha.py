@@ -1,0 +1,118 @@
+from openpyxl import Workbook
+from openpyxl.styles import Border, Side, Alignment, PatternFill, Font
+from tkinter import filedialog
+import io
+
+class excel:
+    def __init__ (self, cortes, padroes, perdas):
+        self.cortes = cortes
+        self.padroes = padroes
+        self.perdas = perdas
+        self.buffer = io.BytesIO()
+
+        self.tipos_excel = [
+            ("Pasta de Trabalho do Excel", "*.xlsx"),
+            ("Pasta de Trabalho Habilitada para Macro", "*.xlsm"),
+            ("Pasta de Trabalho Binária do Excel", "*.xlsb"),
+            ("Pasta de Trabalho do Excel 97-2003", "*.xls"),
+            ("Arquivo CSV (separado por vírgulas)", "*.csv"),
+            ("Texto separado por tabulações", "*.txt"),
+            ("Todos os arquivos", "*.*")
+        ]
+
+        # Cria uma nova pasta de trabalho (Workbook)
+        self.wb = Workbook()
+
+        # Seleciona a aba ativa
+        self.ws = self.wb.active
+        self.ws.title = "Padrões"
+
+        # Fonte em negrito
+        self.negrito = Font(bold=True)
+
+        # Mudando a cor de fundo
+        # A cor deve ser passada em formato hexadecimal ARGB. Ex: Amarelo = "FFFF00"
+        self.cor_fundo_descartado = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="darkVertical") # Amarelo
+        self.cor_fundo_usado = PatternFill(start_color="FF28A745", end_color="FF28A745", fill_type="lightVertical") # Verde
+        self.cor_fundo_header = PatternFill(start_color="2F4F4F", end_color="2F4F4F", fill_type="darkGray") # cinza
+
+        # Centralizando o conteúdo
+        self.alinhamento = Alignment(horizontal="center", vertical="center")
+
+        # Colocando borda
+        # Primeiro definimos o estilo da linha (fina e preta), depois aplicamos aos 4 lados da célula
+        self.linha_fina = Side(border_style="thin", color="000000")
+        self.linha_medium = Side(border_style="medium", color="000000")
+
+        self.borda_fina = Border(left=self.linha_fina, right=self.linha_fina, top=self.linha_fina, bottom=self.linha_fina)
+        self.borda_medium = Border(left=self.linha_medium, right=self.linha_medium, top=self.linha_medium, bottom=self.linha_medium)
+        # Borde Style:
+        # • thin (fina)
+        # • medium (média)
+        # • thick (grossa)
+        # • double (dupla)
+        # • dotted (pontilhada)
+        # • dashed (tracejada)
+        # • hair (cabelo / linha extremamente fina)
+        # • mediumDashed (média tracejada)
+        # • dashDot (traço-ponto)
+        # • mediumDashDot (média traço-ponto)
+        # • dashDotDot (traço-ponto-ponto)
+        # • mediumDashDotDot (média traço-ponto-ponto)
+        # • slantDashDot (traço-ponto inclinado)
+
+    def criar_cabecalho(self):
+        # Adicionar cabeçalho
+        self.ws["A1"] = "ID"
+
+        for c, i in enumerate(self.cortes, 2):
+            self.ws.cell(row=1, column=i, value="{c} cm")
+
+        self.ws.cell(row=1, column=len(self.cortes)+2, value="Perda (cm)")
+
+        # Alenta um pouco a largura da celula
+        self.ws.column_dimensions["J"].width = 17
+
+    def adicionar_dados(self):
+        # Adiciona dados nas linhas
+        for id, x in enumerate(zip(self.padroes, self.perdas)): 
+            self.ws.append([id+1, *x[0], x[1]])
+
+    def obter_caminho(self, nome):
+        caminho = filedialog.asksaveasfilename(
+            initialfile = nome,
+            defaultextension=".xlsx", 
+            filetypes = self.tipos_excel,
+            title="Salvar Padrões"
+            )
+
+        # return caminho
+
+    def salvar_arquivo(self, arquivo):
+        self.criar_cabecalho()
+        self.adicionar_dados()
+
+        for linha in self.ws.iter_cols(min_row=1, max_row=self.ws.max_row, min_col=1, max_col=self.ws.max_column):
+            for x, celula in enumerate(linha):
+                
+                if not x: # Cabeçalho
+                    celula.fill = self.cor_fundo_header
+                    celula.alignment = self.alinhamento
+                    celula.border = self.borda_medium
+                    celula.font = self.negrito
+                else: 
+                    if x in [2, 3 , 6]: # Padroes usados
+                        celula.fill = self.cor_fundo_usado
+                        celula.alignment = self.alinhamento
+                        celula.border = self.borda_fina
+                    else: # Padroes não usados
+                        celula.fill = self.cor_fundo_descartado
+                        celula.alignment = self.alinhamento
+                        celula.border = self.borda_fina
+
+        # Escolhe o caminho que quer salvar 
+        #caminho_salvar = self.obter_caminho(f"{arquivo}_padroes calculados")
+        # buffer = io.BytesIO()
+        # Salva o arquivo Excel
+        self.wb.save(self.buffer)
+        self.buffer.seek(0)
