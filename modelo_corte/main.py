@@ -53,37 +53,39 @@ if arquivo_selecionado and arquivo_selecionado != "--- Selecione um arquivo ---"
     qnt_demandas = st.session_state['modo_livre']['demanda']  if "modo_livre" in st.session_state else 0
 
     if arquivo_selecionado == "Modelo Livre":
-        if st.sidebar.button("+ linhas"):
+        if st.sidebar.button("Adicionar linha"):
             st.session_state['modo_livre'] = {
                 "demanda" : qnt_demandas +1
             }
 
             if "modo_livre" in st.session_state:
                 print (st.session_state['modo_livre']['demanda'])
-                
+
+                indice = st.session_state["modo_livre"]["demanda"] - 1
+
                 coluna = st.sidebar.columns(2, gap="xxsmall")
-                D = coluna[0].number_input(f"Demandada {i + 1}:",
+                D = coluna[0].number_input(f"D{indice + 1} - Quantidade demandada (unid):",
                                             min_value=0,
                                             max_value=10000,
-                                            value=demandas[i],
+                                            value=demandas[indice],
                                             step=1)
-                l = coluna[1].number_input("Compri. do corte (cm):",
+                l = coluna[1].number_input(f"l{indice + 1} - Comprimento do corte (cm):",
                                             min_value=0,
                                             max_value=L,
-                                            value=compr_cortes[i],
+                                            value=compr_cortes[indice],
                                             step=1)
-                demandas[i] = D
-                compr_cortes[i] = l
+                demandas[indice] = D
+                compr_cortes[indice] = l
 
     else:
         for i in range(qtd_compr_cortes): 
             coluna = st.sidebar.columns(2, gap="xxsmall")
-            D = coluna[0].number_input(f"Demandada {i + 1}:",
+            D = coluna[0].number_input(f"D{i + 1} - Quantidade demandada (unid):",
                                         min_value=0,
                                         max_value=10000,
                                         value=demandas[i],
                                         step=1)
-            l = coluna[1].number_input("Compri. do corte (cm):",
+            l = coluna[1].number_input(f"l{i + 1} - Comprimento do corte (cm):",
                                         min_value=0,
                                         max_value=L,
                                         value=compr_cortes[i],
