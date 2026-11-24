@@ -34,6 +34,9 @@ def organiza_dados(nome_arquivo):
 
     return tamanho_bobina, maximo_padroes, comprimento_cortes, demandas, quantidade_comprimentos_cortes
 
+def modelo_livre(*args):
+    pass
+
 
 if __name__ == "__main__":
     L, m, l, D, n = organiza_dados("Modelo livre")

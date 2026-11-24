@@ -120,8 +120,8 @@ class Modelo:
                     resultados,    # Data Frame com os resultados
                     f"{modelo.objVal:.2f}", # Valor ótimo
                     (modelo.objVal * self.L) / 100, # Total de metros utilizados
-                    sum(perda * qtd for qtd, perda in zip(resultados[""]["Quantidade Utilizada"], # Soma do total das perdas
-                                                          resultados[""]["Perda (cm)"]))]
+                    (sum(perda * qtd for qtd, perda in zip(resultados[""]["Quantidade Utilizada"], # Soma do total das perdas
+                                                          resultados[""]["Perda (cm)"]))) / 100]
         
         else:
             print("Solução não encontrada")

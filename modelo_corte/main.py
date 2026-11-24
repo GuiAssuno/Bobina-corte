@@ -32,6 +32,7 @@ if arquivo_selecionado and arquivo_selecionado != "--- Selecione um arquivo ---"
 
     # Classe usada para descompactar os arquivos de instâncias escolhido em "arquivo_selecionado". 
     tam_bobina, max_padroes, compr_cortes, demandas, qtd_compr_cortes = dados.organiza_dados(arquivo_selecionado)
+    #tam_bobina, max_padroes, compr_cortes, demandas, qtd_compr_cortes = dados.organiza_dados(arquivo_selecionado)
     
     # Barra deslizante para o tamanho da bobina
     L = st.sidebar.slider("Tamanho da Bobina grande",   
@@ -49,32 +50,46 @@ if arquivo_selecionado and arquivo_selecionado != "--- Selecione um arquivo ---"
     
     # Monta a lista com o as demandas e as suas quantidades os seus respectivos tamanhos de cortes
     
-    teste = 0
+    qnt_demandas = st.session_state['modo_livre']['demanda']  if "modo_livre" in st.session_state else 0
 
     if arquivo_selecionado == "Modelo Livre":
-        st.sidebar.number_input("Número de linhas:",
-                                min_value=0,
-                                max_value=10,
-                                value=teste,
-                                step=1)
-        
+        if st.sidebar.button("+ linhas"):
+            st.session_state['modo_livre'] = {
+                "demanda" : qnt_demandas +1
+            }
+
+            if "modo_livre" in st.session_state:
+                print (st.session_state['modo_livre']['demanda'])
+                
+                coluna = st.sidebar.columns(2, gap="xxsmall")
+                D = coluna[0].number_input(f"Demandada {i + 1}:",
+                                            min_value=0,
+                                            max_value=10000,
+                                            value=demandas[i],
+                                            step=1)
+                l = coluna[1].number_input("Compri. do corte (cm):",
+                                            min_value=0,
+                                            max_value=L,
+                                            value=compr_cortes[i],
+                                            step=1)
+                demandas[i] = D
+                compr_cortes[i] = l
+
     else:
-        teste = qtd_compr_cortes
-    
-    for i in range(teste): 
-        coluna = st.sidebar.columns(2, gap="xxsmall")
-        D = coluna[0].number_input("Quantidade demandada (unid):",
-                                    min_value=0,
-                                    max_value=10000,
-                                    value=demandas[i],
-                                    step=1)
-        l = coluna[1].number_input("Comprimento do corte (cm):",
-                                    min_value=0,
-                                    max_value=L,
-                                    value=compr_cortes[i],
-                                    step=1)
-        demandas[i] = D
-        compr_cortes[i] = l
+        for i in range(qtd_compr_cortes): 
+            coluna = st.sidebar.columns(2, gap="xxsmall")
+            D = coluna[0].number_input(f"Demandada {i + 1}:",
+                                        min_value=0,
+                                        max_value=10000,
+                                        value=demandas[i],
+                                        step=1)
+            l = coluna[1].number_input("Compri. do corte (cm):",
+                                        min_value=0,
+                                        max_value=L,
+                                        value=compr_cortes[i],
+                                        step=1)
+            demandas[i] = D
+            compr_cortes[i] = l
 
 # Botão Executar 
 if st.sidebar.button("Executar"):
@@ -82,7 +97,7 @@ if st.sidebar.button("Executar"):
             try:
                 model = Modelo(L, compr_cortes, demandas, qtd_compr_cortes, m, alternativa)# alternativa adicionar aqui quando terminar o modelo com limite de padrões
                 status_modelo, df_resultados, valor_objetivo, mts_total, perda = model.calcular_modelo() 
-                
+                print (f'Metros totais:{mts_total}')
                 if status_modelo == 2:
                     planilha = excel(compr_cortes, model.Q, model.perdas, df_resultados)
                     planilha.salvar_arquivo(arquivo_selecionado)
@@ -107,7 +122,7 @@ if "Resultado" in st.session_state:
     st.success("Valor Ótimo encontrado", title="Status do Modelo")
                         
     col1, col2 = st.columns(2) # Cria Duas colunas na tela principal do 
-    col1.metric(label="Valor da Função Objetivo", value=f"{resultado['objetivo']} cortes")
+    col1.metric(label="Valor da Função Objetivo", value=f"{float(resultado['objetivo']):.0f} bobinas")
 
     with col2:
         sub_col1, sub_col2 = st.columns(2)
