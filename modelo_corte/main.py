@@ -55,14 +55,14 @@ if arquivo_selecionado and arquivo_selecionado != "--- Selecione um arquivo ---"
         with st.sidebar:
             col_deletar, col_adicionar = st.columns(2)
 
-            if col_deletar.button("Excluir linha", disabled= (st.session_state["modelo_livre"] <= 0)):
+            if col_deletar.button("Excluir linha"):
                 st.session_state["modelo_livre"] -= 1
 
             if col_adicionar.button("Adicionar linha"):
                 st.session_state["modelo_livre"] += 1
 
-        demandas = [] #* ultimo
-        compr_cortes = [] #*ultimo 
+        demandas = [] 
+        compr_cortes = []  
             
         # Monta a lista com o as demandas e as suas quantidades os seus respectivos tamanhos de cortes
         for i in range(st.session_state["modelo_livre"]):
@@ -81,8 +81,6 @@ if arquivo_selecionado and arquivo_selecionado != "--- Selecione um arquivo ---"
             
             demandas.append(D)
             compr_cortes.append(l)
-
-            print(st.session_state)
 
     else:
     
