@@ -48,36 +48,46 @@ if arquivo_selecionado and arquivo_selecionado != "--- Selecione um arquivo ---"
                                 value=max_padroes, 
                                 step=1)
     
-    # Monta a lista com o as demandas e as suas quantidades os seus respectivos tamanhos de cortes
-    
-    qnt_demandas = st.session_state['modo_livre']['demanda']  if "modo_livre" in st.session_state else 0
-
     if arquivo_selecionado == "Modelo Livre":
-        if st.sidebar.button("Adicionar linha"):
-            st.session_state['modo_livre'] = {
-                "demanda" : qnt_demandas +1
-            }
+        if "modelo_livre" not in st.session_state:
+            st.session_state["modelo_livre"] = 0
 
-            if "modo_livre" in st.session_state:
-                print (st.session_state['modo_livre']['demanda'])
+        with st.sidebar:
+            col_deletar, col_adicionar = st.columns(2)
 
-                indice = st.session_state["modo_livre"]["demanda"] - 1
+            if col_deletar.button("Excluir linha", disabled=st.session_state["modelo_livre"] <= 1):
+                ultimo = st.session_state["modelo_livre"] - 1
+                st.session_state.pop(f"D_{ultimo}", None)   # limpa o valor da linha removida
+                st.session_state.pop(f"l_{ultimo}", None)
+                st.session_state["modelo_livre"] -= 1
 
-                coluna = st.sidebar.columns(2, gap="xxsmall")
-                D = coluna[0].number_input(f"D{indice + 1} - Quantidade demandada (unid):",
-                                            min_value=0,
-                                            max_value=10000,
-                                            value=demandas[indice],
-                                            step=1)
-                l = coluna[1].number_input(f"l{indice + 1} - Comprimento do corte (cm):",
-                                            min_value=0,
-                                            max_value=L,
-                                            value=compr_cortes[indice],
-                                            step=1)
-                demandas[indice] = D
-                compr_cortes[indice] = l
+            if col_adicionar.button("Adicionar linha"):
+                st.session_state["modelo_livre"] += 1
+
+        demandas = [] * ultimo
+        compr_cortes = [] * ultimo
+            
+        # Monta a lista com o as demandas e as suas quantidades os seus respectivos tamanhos de cortes
+        for i in range(st.session_state["modelo_livre"]):
+            coluna = st.sidebar.columns(2, gap="xxsmall")
+            D = coluna[0].number_input(f"D{i+1} - Quantidade demandada (unid):",
+                                min_value=0, 
+                                max_value=10000, 
+                                value=0, 
+                                step=1,
+                                key=f"D_{i}")
+            l = coluna[1].number_input(f"l{i+1} - Comprimento do corte (cm):",
+                                min_value=0, 
+                                max_value=L, 
+                                value=0, 
+                                step=1,
+                                key=f"l_{i}")
+            demandas.append(D)
+            compr_cortes.append(l)
 
     else:
+    
+        # Monta a lista com o as demandas e as suas quantidades os seus respectivos tamanhos de cortes
         for i in range(qtd_compr_cortes): 
             coluna = st.sidebar.columns(2, gap="xxsmall")
             D = coluna[0].number_input(f"D{i + 1} - Quantidade demandada (unid):",
