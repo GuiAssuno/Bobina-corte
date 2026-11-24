@@ -1,13 +1,15 @@
 from openpyxl import Workbook
 from openpyxl.styles import Border, Side, Alignment, PatternFill, Font
 from tkinter import filedialog
+import pandas as pd
 import io
 
 class excel:
-    def __init__ (self, cortes, padroes, perdas):
+    def __init__ (self, cortes, padroes, perdas, p_escolhidos):
         self.cortes = cortes
         self.padroes = padroes
         self.perdas = perdas
+        self.p_escolhidos = [x for x in p_escolhidos.iloc[:, 0]]
         self.buffer = io.BytesIO()
 
         self.tipos_excel = [
@@ -94,7 +96,7 @@ class excel:
     def salvar_arquivo(self, arquivo):
         self.criar_cabecalho()
         self.adicionar_dados()
-
+        print(self.p_escolhidos)
         for linha in self.ws.iter_cols(min_row=1, max_row=self.ws.max_row, min_col=1, max_col=self.ws.max_column):
             for x, celula in enumerate(linha):
                 
@@ -104,7 +106,7 @@ class excel:
                     celula.border = self.borda_fina
                     celula.font = self.cabecalho
                 else: 
-                    if x in [2, 3 , 6]: # Padroes usados
+                    if x in self.p_escolhidos: # Padroes usados
                         celula.fill = self.cor_fundo_usado
                         celula.alignment = self.alinhamento
                         celula.border = self.borda_fina

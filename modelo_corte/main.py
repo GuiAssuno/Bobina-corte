@@ -84,7 +84,7 @@ if st.sidebar.button("Executar"):
                 status_modelo, df_resultados, valor_objetivo, mts_total, perda = model.calcular_modelo() 
                 
                 if status_modelo == 2:
-                    planilha = excel(compr_cortes, model.Q, model.perdas)
+                    planilha = excel(compr_cortes, model.Q, model.perdas, df_resultados)
                     planilha.salvar_arquivo(arquivo_selecionado)
 
                     st.session_state["Resultado"] = {
