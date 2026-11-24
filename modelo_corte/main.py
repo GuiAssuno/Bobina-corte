@@ -95,28 +95,6 @@ if st.sidebar.button("Executar"):
                         "nome": f"{arquivo_selecionado}_padroes.xlsx",
                         "excel": planilha.buffer.getvalue()
                     }
-
-                    
-                #     st.success("Valor Ótimo encontrado", title="Status do Modelo")
-                    
-                #     col1, col2 = st.columns(2) # Cria Duas colunas na tela principal do 
-                #     col1.metric(label="Valor da Função Objetivo", value=f"{valor_objetivo} cortes")
-
-                #     with col2:
-                #         sub_col1, sub_col2 = st.columns(2)
-                        
-                #         sub_col1.metric(label="Metros de bobinas utilizados", value=f"{mts_total} mts")
-                #         sub_col2.metric(label="Metros de bobinas perdidos", value=f"{perda} mts")
-                    
-                #     # Tabela final exibindo os padrões escolhidos
-                #     st.subheader("Padrões Escolhidos")
-                #     st.dataframe(df_resultados, width='stretch', hide_index=True)
-
-                #     # Salva o arquivo Excel
-                    
-                #     if st.button("Baixar Excel"):
-                #         st.download_button(data = planilha.criar_cabecalho(compr_cortes, model.Q, model.perdas),
-                #                            file_name="teste.xlsx")
     
                 else:
                     st.warning("Solução ótima NÃO encontrada", title="Status do Modelo")
