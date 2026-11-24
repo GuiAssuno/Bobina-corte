@@ -55,17 +55,14 @@ if arquivo_selecionado and arquivo_selecionado != "--- Selecione um arquivo ---"
         with st.sidebar:
             col_deletar, col_adicionar = st.columns(2)
 
-            if col_deletar.button("Excluir linha", disabled=st.session_state["modelo_livre"] <= 1):
-                ultimo = st.session_state["modelo_livre"] - 1
-                st.session_state.pop(f"D_{ultimo}", None)   # limpa o valor da linha removida
-                st.session_state.pop(f"l_{ultimo}", None)
+            if col_deletar.button("Excluir linha", disabled= (st.session_state["modelo_livre"] <= 0)):
                 st.session_state["modelo_livre"] -= 1
 
             if col_adicionar.button("Adicionar linha"):
                 st.session_state["modelo_livre"] += 1
 
-        demandas = [] * ultimo
-        compr_cortes = [] * ultimo
+        demandas = [] #* ultimo
+        compr_cortes = [] #*ultimo 
             
         # Monta a lista com o as demandas e as suas quantidades os seus respectivos tamanhos de cortes
         for i in range(st.session_state["modelo_livre"]):
@@ -74,16 +71,18 @@ if arquivo_selecionado and arquivo_selecionado != "--- Selecione um arquivo ---"
                                 min_value=0, 
                                 max_value=10000, 
                                 value=0, 
-                                step=1,
-                                key=f"D_{i}")
+                                step=1)
+                                
             l = coluna[1].number_input(f"l{i+1} - Comprimento do corte (cm):",
                                 min_value=0, 
                                 max_value=L, 
                                 value=0, 
-                                step=1,
-                                key=f"l_{i}")
+                                step=1)
+            
             demandas.append(D)
             compr_cortes.append(l)
+
+            print(st.session_state)
 
     else:
     
