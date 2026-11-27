@@ -6,6 +6,7 @@ import arquivos as dados
 import modelo as modelo
 from modelo import Modelo
 from planilha import excel
+import time
 
 # Configuração inicial da página
 st.set_page_config(page_title="Otimização de Padronagem", layout="wide")
@@ -104,8 +105,10 @@ if arquivo_selecionado and arquivo_selecionado != "--- Selecione um arquivo ---"
 if st.sidebar.button("Executar"):
     with st.spinner("Otimizando padrões no Gurobi..."): # Texto de Carregamento enquanto o Gurobi Carrega a solução Otima
             try:
+                inicio_total = time.perf_counter() # Início da contagem do tempo total de execução
                 model = Modelo(L, compr_cortes, demandas, qtd_compr_cortes, m, alternativa)# alternativa adicionar aqui quando terminar o modelo com limite de padrões
                 status_modelo, df_resultados, valor_objetivo, mts_total, perda = model.calcular_modelo() 
+                tempo_total = time.perf_counter() - inicio_total # Fim da contagem do tempo total
                 print (f'Metros totais:{mts_total}')
                 if status_modelo == 2:
                     planilha = excel(compr_cortes, model.Q, model.perdas, df_resultados)
@@ -116,6 +119,9 @@ if st.sidebar.button("Executar"):
                         "objetivo": valor_objetivo,
                         "totais": mts_total,
                         "perda": perda,
+                        "tempo_padroes": model.tempo_padroes,
+                        "tempo_modelo": model.tempo_modelo,
+                        "tempo_total": tempo_total,
                         "nome": f"{arquivo_selecionado}_padroes.xlsx",
                         "excel": planilha.buffer.getvalue()
                     }
@@ -148,6 +154,12 @@ if "Resultado" in st.session_state:
                         data = resultado['excel'],
                         file_name = resultado['nome'])
 
+
+    # Tempos de execução
+    colunas_tempos = st.columns(3)
+    colunas_tempos[0].metric(label="Tempo para calcular todos os padrões", value=f"{resultado['tempo_padroes']:.4f} s")
+    colunas_tempos[1].metric(label="Tempo para calcular o modelo", value=f"{resultado['tempo_modelo']:.4f} s")
+    colunas_tempos[2].metric(label="Tempo total de execução", value=f"{resultado['tempo_total']:.4f} s")
 
 # Exibição do status da interface
 if arquivo_selecionado and arquivo_selecionado != "--- Selecione um arquivo ---":

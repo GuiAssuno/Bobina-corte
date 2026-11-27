@@ -2,6 +2,7 @@ import gurobipy as gp
 import numpy as np
 from itertools import product
 import pandas as pd
+import time
 
 class Modelo:
     def __init__(self,L, l, D, n, m, a):
@@ -26,7 +27,12 @@ class Modelo:
         self.n = n  # Quantidade dy comprimentos dos cortes
         self.m = m  # Quantidade máxima de padrões
         self.a = a  # Armazena o tipo do modelo: alterna A) Sem limite de padrões e B) Com limite de padrões
+        self.tempo_padroes = 0.0 # Tempo (s) para gerar todos os padrões de corte
+        self.tempo_modelo = 0.0  # Tempo (s) para montar e resolver o modelo no Gurobi
+
+        inicio_padroes = time.perf_counter()
         self.Q, self.perdas = self.gerar_padroes(L,l) # Matriz com os padrões de cortes possiveis | Lista com as perdas de cada padrão
+        self.tempo_padroes = time.perf_counter() - inicio_padroes
 
         self.qtd_padrao = len(self.Q) # Quantidade de padrões de corte
         self.qtd_cortes = len(self.l) # Quantidade dy comprimentos dos cortes
@@ -62,7 +68,9 @@ class Modelo:
 
     def calcular_modelo(self):
         """Calcula o modelo de otimização"""
-        
+
+        inicio_modelo = time.perf_counter()
+
         # Criando um modelo
         modelo = gp.Model()
 
@@ -97,6 +105,7 @@ class Modelo:
         # Resolução
         modelo.setParam("OutputFlag", 0)
         modelo.optimize()
+        self.tempo_modelo = time.perf_counter() - inicio_modelo
 
         if modelo.status == 2:
             linhas  = []
