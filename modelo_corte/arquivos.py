@@ -5,7 +5,6 @@ def carregar_dados(nome_arquivo):
 
     diretorio_atual = os.path.dirname(os.path.abspath(__file__))
     caminho = os.path.join(diretorio_atual, "data", f"{nome_arquivo}.txt")
-    print (caminho)
     with open(caminho, 'r') as arquivo:
         linhas = arquivo.read()
     return linhas

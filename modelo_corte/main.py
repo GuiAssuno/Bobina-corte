@@ -109,7 +109,6 @@ if st.sidebar.button("Executar"):
                 model = Modelo(L, compr_cortes, demandas, qtd_compr_cortes, m, alternativa)# alternativa adicionar aqui quando terminar o modelo com limite de padrões
                 status_modelo, df_resultados, valor_objetivo, mts_total, perda = model.calcular_modelo() 
                 tempo_total = time.perf_counter() - inicio_total # Fim da contagem do tempo total
-                print (f'Metros totais:{mts_total}')
                 if status_modelo == 2:
                     planilha = excel(compr_cortes, model.Q, model.perdas, df_resultados)
                     planilha.salvar_arquivo(arquivo_selecionado)

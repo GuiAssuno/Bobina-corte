@@ -96,7 +96,6 @@ class excel:
     def salvar_arquivo(self, arquivo):
         self.criar_cabecalho()
         self.adicionar_dados()
-        print(self.p_escolhidos)
         for linha in self.ws.iter_cols(min_row=1, max_row=self.ws.max_row, min_col=1, max_col=self.ws.max_column):
             for x, celula in enumerate(linha):
                 

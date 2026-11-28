@@ -86,7 +86,7 @@ class Modelo:
 
         # Restrições
         r1 = modelo.addConstrs(
-            sum(self.x[j] * self.Q[j][i] for j in range(self.qtd_padrao)) == self.D[i]
+            sum(self.x[j] * self.Q[j][i] for j in range(self.qtd_padrao)) >= self.D[i]
                                          for i in range(self.qtd_cortes)
         )
 
